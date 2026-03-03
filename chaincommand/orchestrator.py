@@ -187,7 +187,10 @@ class ChainCommandOrchestrator:
         _runtime.agents = {
             "demand_forecaster": DemandForecasterAgent(
                 llm=llm,
-                tools=[QueryDemandHistory(), RunDemandForecast(), GetForecastAccuracy(), ScanMarketIntelligence(), EmitEvent()],
+                tools=[
+                    QueryDemandHistory(), RunDemandForecast(), GetForecastAccuracy(),
+                    ScanMarketIntelligence(), EmitEvent(),
+                ],
             ),
             "strategic_planner": StrategicPlannerAgent(
                 llm=llm,
@@ -195,11 +198,17 @@ class ChainCommandOrchestrator:
             ),
             "inventory_optimizer": InventoryOptimizerAgent(
                 llm=llm,
-                tools=[QueryInventoryStatus(), CalculateReorderPoint(), AdjustSafetyStock(), OptimizeInventory(), EmitEvent()],
+                tools=[
+                    QueryInventoryStatus(), CalculateReorderPoint(), AdjustSafetyStock(),
+                    OptimizeInventory(), EmitEvent(),
+                ],
             ),
             "supplier_manager": SupplierManagerAgent(
                 llm=llm,
-                tools=[QuerySupplierInfo(), EvaluateSupplier(), CreatePurchaseOrder(), RequestHumanApproval(), EmitEvent()],
+                tools=[
+                    QuerySupplierInfo(), EvaluateSupplier(), CreatePurchaseOrder(),
+                    RequestHumanApproval(), EmitEvent(),
+                ],
             ),
             "logistics_coordinator": LogisticsCoordinatorAgent(
                 llm=llm,
@@ -387,7 +396,10 @@ class ChainCommandOrchestrator:
 
         return {
             "cycle": self._cycle_count,
-            "agent_results": {k: v.get("analysis", "") if isinstance(v, dict) else "" for k, v in agent_results.items()},
+            "agent_results": {
+                k: v.get("analysis", "") if isinstance(v, dict) else ""
+                for k, v in agent_results.items()
+            },
             "kpi": snapshot.model_dump(),
             "violations": len(violations),
             "report": report_result.get("report", {}).get("report_id"),

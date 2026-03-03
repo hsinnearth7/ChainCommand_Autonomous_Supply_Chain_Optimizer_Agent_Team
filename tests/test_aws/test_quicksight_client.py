@@ -52,7 +52,7 @@ class TestCreateDataSource:
             "CreationStatus": "CREATION_SUCCESSFUL",
         }
 
-        result = qs_client.create_data_source(
+        qs_client.create_data_source(
             name="Redshift Source",
             source_type="redshift",
             config={"host": "cluster.abc.redshift.amazonaws.com", "port": 5439, "database": "testdb"},

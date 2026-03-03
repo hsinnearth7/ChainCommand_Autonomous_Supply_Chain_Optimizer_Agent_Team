@@ -59,7 +59,6 @@ class AssessSupplyRisk(BaseTool):
         supplier_id: str = kwargs.get("supplier_id", "")
 
         suppliers = _runtime.suppliers or []
-        products = _runtime.products or []
 
         # Find relevant suppliers
         if product_id:

@@ -43,7 +43,7 @@ class InventoryOptimizerAgent(BaseAgent):
             description="Check all inventory levels",
             input_data={},
         )
-        inv_data = await self.act(inv_action)
+        await self.act(inv_action)
         results["actions"].append(inv_action.model_dump())
 
         products = context.get("products", [])

@@ -37,7 +37,7 @@ class KPIEngine:
         on_time_in_full = 0
         for po in delivered:
             if po.expected_delivery and po.created_at:
-                on_time = True  # simplified: assume delivered POs are on-time
+                # simplified: assume delivered POs are on-time
                 on_time_in_full += 1
         otif = on_time_in_full / max(len(delivered), 1)
 

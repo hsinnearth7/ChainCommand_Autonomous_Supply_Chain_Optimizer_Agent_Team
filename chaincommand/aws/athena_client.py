@@ -145,7 +145,7 @@ class AthenaClient:
         results = []
         for row in rows[1:]:
             values = [col.get("VarCharValue", "") for col in row["Data"]]
-            results.append(dict(zip(headers, values)))
+            results.append(dict(zip(headers, values, strict=False)))
         return results
 
     def _start_query(self, sql: str) -> str:

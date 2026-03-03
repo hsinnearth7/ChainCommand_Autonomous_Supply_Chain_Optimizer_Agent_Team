@@ -45,7 +45,6 @@ class CoordinatorAgent(BaseAgent):
         }
 
         agent_results = context.get("agent_results", {})
-        products = context.get("products", [])
 
         # Step 1: Conflict detection and resolution
         conflicts = self._detect_conflicts(agent_results)

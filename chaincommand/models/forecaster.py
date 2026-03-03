@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict, List, Protocol, runtime_checkable
 
 import numpy as np
 import pandas as pd
@@ -202,7 +202,7 @@ class EnsembleForecaster:
             return lstm_preds
 
         results = []
-        for lstm_r, xgb_r in zip(lstm_preds, xgb_preds):
+        for lstm_r, xgb_r in zip(lstm_preds, xgb_preds, strict=False):
             w_l, w_x = weights["lstm"], weights["xgb"]
             demand = w_l * lstm_r.predicted_demand + w_x * xgb_r.predicted_demand
             lower = w_l * lstm_r.confidence_lower + w_x * xgb_r.confidence_lower
@@ -232,15 +232,13 @@ class EnsembleForecaster:
         if n == 0:
             return 100.0
         errors = []
-        for a, p in zip(actual[:n], predicted[:n]):
+        for a, p in zip(actual[:n], predicted[:n], strict=False):
             if a > 0:
                 errors.append(abs(a - p) / a * 100)
         return float(np.mean(errors)) if errors else 100.0
 
 
 # ── v2.0: ForecastModel Protocol ─────────────────────────
-
-from typing import Protocol, runtime_checkable
 
 
 @runtime_checkable

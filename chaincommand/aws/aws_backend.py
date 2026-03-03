@@ -114,7 +114,7 @@ class AWSBackend(PersistenceBackend):
 
         safe_days = max(1, min(int(days), 365))
         sql = (
-            f"SELECT cycle, timestamp, {metric} "
+            f"SELECT cycle, timestamp, {metric} "  # noqa: S608
             f"FROM kpi_snapshots "
             f"WHERE timestamp >= DATEADD(day, -{safe_days}, GETDATE()) "
             f"ORDER BY cycle"
@@ -128,7 +128,7 @@ class AWSBackend(PersistenceBackend):
             return []
         safe_limit = max(1, min(int(limit), 500))
         sql = (
-            f"SELECT event_id, timestamp, event_type, severity, source_agent, description "
+            f"SELECT event_id, timestamp, event_type, severity, source_agent, description "  # noqa: S608
             f"FROM events "
             f"WHERE event_type = '{event_type}' "
             f"ORDER BY timestamp DESC "

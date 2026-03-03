@@ -54,7 +54,7 @@ class GeneticOptimizer:
         best = population[0]
         best_fitness_val = -1.0
 
-        for gen in range(self._generations):
+        for _gen in range(self._generations):
             # Fitness = minimize total cost (holding + stockout penalty + ordering)
             fitness = []
             for individual in population:
@@ -142,11 +142,11 @@ class DQNOptimizer:
         }
 
         epsilon = self._epsilon
-        for ep in range(self._episodes):
+        for _ep in range(self._episodes):
             stock = product.current_stock
             total_reward = 0
 
-            for day in range(30):
+            for _day in range(30):
                 # State discretization
                 stock_level = "critical" if stock < product.safety_stock else \
                               "low" if stock < product.reorder_point else \

@@ -190,7 +190,7 @@ class RedshiftClient:
         columns = [desc[0] for desc in cursor.description] if cursor.description else []
         rows = cursor.fetchall()
         cursor.close()
-        return [dict(zip(columns, row)) for row in rows]
+        return [dict(zip(columns, row, strict=False)) for row in rows]
 
     def insert_kpi_snapshot(self, cycle: int, snapshot: KPISnapshot) -> None:
         """Direct INSERT of a KPI snapshot row."""
