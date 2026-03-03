@@ -24,6 +24,7 @@ ENV/
 
 # ─── Testing / Linting ───────────────────────────────────
 .pytest_cache/
+.hypothesis/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -64,6 +65,13 @@ logs/
 
 # ─── Node.js ─────────────────────────────────────────────
 node_modules/
+
+# ─── Images ─────────────────────────────────────────────
+*.png
+*.jpg
+*.jpeg
+*.gif
+architecture-diagrams/
 
 # ─── Project-specific exclusions ─────────────────────────
 docs/

@@ -18,12 +18,10 @@ import pandas as pd
 
 from chaincommand.config import settings
 from chaincommand.data.schemas import (
-    DemandRecord,
     Product,
     ProductCategory,
     Supplier,
 )
-
 
 # Realistic product templates per category
 _PRODUCT_TEMPLATES = {

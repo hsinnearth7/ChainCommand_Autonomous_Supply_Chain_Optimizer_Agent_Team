@@ -13,8 +13,8 @@ from .config import settings
 from .data.schemas import (
     HumanApprovalRequest,
     KPISnapshot,
-    PurchaseOrder,
     Product,
+    PurchaseOrder,
     Supplier,
 )
 from .utils.logging_config import get_logger, setup_logging
@@ -124,9 +124,9 @@ class ChainCommandOrchestrator:
 
         # Phase 3: Initialize engines
         self._ui("on_init_phase_start", 3)
-        from .kpi.engine import KPIEngine
         from .events.bus import EventBus
         from .events.monitor import ProactiveMonitor
+        from .kpi.engine import KPIEngine
 
         _runtime.kpi_engine = KPIEngine()
         _runtime.event_bus = EventBus()
@@ -149,21 +149,36 @@ class ChainCommandOrchestrator:
 
         # Phase 4: Initialize agents
         self._ui("on_init_phase_start", 4)
+        from .agents import (
+            AnomalyDetectorAgent,
+            CoordinatorAgent,
+            DemandForecasterAgent,
+            InventoryOptimizerAgent,
+            LogisticsCoordinatorAgent,
+            MarketIntelligenceAgent,
+            ReporterAgent,
+            RiskAssessorAgent,
+            StrategicPlannerAgent,
+            SupplierManagerAgent,
+        )
         from .llm.factory import create_llm
         from .tools import (
-            QueryDemandHistory, QueryInventoryStatus, QuerySupplierInfo,
-            QueryKPIHistory, RunDemandForecast, GetForecastAccuracy,
-            CalculateReorderPoint, OptimizeInventory, EvaluateSupplier,
-            DetectAnomalies, AssessSupplyRisk, ScanMarketIntelligence,
-            CreatePurchaseOrder, RequestHumanApproval, AdjustSafetyStock,
+            AdjustSafetyStock,
+            AssessSupplyRisk,
+            CalculateReorderPoint,
+            CreatePurchaseOrder,
+            DetectAnomalies,
             EmitEvent,
-        )
-        from .agents import (
-            DemandForecasterAgent, StrategicPlannerAgent,
-            InventoryOptimizerAgent, SupplierManagerAgent,
-            LogisticsCoordinatorAgent, AnomalyDetectorAgent,
-            RiskAssessorAgent, MarketIntelligenceAgent,
-            CoordinatorAgent, ReporterAgent,
+            EvaluateSupplier,
+            GetForecastAccuracy,
+            OptimizeInventory,
+            QueryDemandHistory,
+            QueryInventoryStatus,
+            QueryKPIHistory,
+            QuerySupplierInfo,
+            RequestHumanApproval,
+            RunDemandForecast,
+            ScanMarketIntelligence,
         )
 
         llm = create_llm()
@@ -432,8 +447,19 @@ class ChainCommandOrchestrator:
 _orchestrator: Optional[ChainCommandOrchestrator] = None
 
 
-def get_orchestrator() -> ChainCommandOrchestrator:
+def get_orchestrator(mode: Optional[str] = None) -> Any:
+    """Factory: return classic (default) or langgraph orchestrator.
+
+    Args:
+        mode: "classic" or "langgraph". Defaults to settings.orchestrator_mode.
+    """
     global _orchestrator
+    chosen = mode or settings.orchestrator_mode
+
+    if chosen == "langgraph":
+        from .langgraph_orchestrator import LangGraphOrchestrator
+        return LangGraphOrchestrator()
+
     if _orchestrator is None:
         _orchestrator = ChainCommandOrchestrator()
     return _orchestrator

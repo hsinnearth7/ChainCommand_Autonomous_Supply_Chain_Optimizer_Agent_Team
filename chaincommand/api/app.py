@@ -10,10 +10,10 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
 
-from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from ..auth import require_api_key, require_ws_api_key
+from ..auth import require_ws_api_key
 from ..config import settings
 from ..utils.logging_config import get_logger
 
@@ -65,8 +65,8 @@ app.add_middleware(
 )
 
 # ── Register routers ────────────────────────────────────────
-from .routes.dashboard import router as dashboard_router  # noqa: E402
 from .routes.control import router as control_router  # noqa: E402
+from .routes.dashboard import router as dashboard_router  # noqa: E402
 
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(control_router, prefix="/api")

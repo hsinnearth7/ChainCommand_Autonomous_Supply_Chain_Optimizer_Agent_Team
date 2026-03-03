@@ -7,12 +7,12 @@ from typing import Any, Dict
 
 from ..config import settings
 from ..data.schemas import (
+    AlertSeverity,
     ApprovalStatus,
     HumanApprovalRequest,
     OrderStatus,
     PurchaseOrder,
     SupplyChainEvent,
-    AlertSeverity,
 )
 from .base_tool import BaseTool
 

@@ -9,7 +9,6 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-
 # ── Enums ────────────────────────────────────────────────
 
 class ProductCategory(str, Enum):
@@ -208,3 +207,39 @@ class OptimizationResult(BaseModel):
     recommended_order_qty: float
     expected_cost_saving: float = 0.0
     method: str = "genetic_algorithm"
+
+
+# ── v2.0: Supplier Allocation Models ────────────────────
+
+class SupplierCandidate(BaseModel):
+    """A candidate supplier for CP-SAT allocation."""
+
+    supplier_id: str
+    unit_cost: float
+    risk_score: float = 0.0
+    capacity: float = 10_000.0
+    min_order_qty: float = 0.0
+    lead_time_days: float = 7.0
+
+
+class AllocationResult(BaseModel):
+    """Result of supplier allocation optimization."""
+
+    allocations: Dict[str, float] = Field(default_factory=dict)
+    total_cost: float = 0.0
+    total_risk: float = 0.0
+    objective_value: float = 0.0
+    solver_status: str = "unknown"
+    solve_time_ms: float = 0.0
+    method: str = "cpsat"
+
+
+class SensitivityResult(BaseModel):
+    """Result of sensitivity analysis over risk-cost trade-off."""
+
+    lambda_values: List[float] = Field(default_factory=list)
+    costs: List[float] = Field(default_factory=list)
+    risks: List[float] = Field(default_factory=list)
+    elbow_lambda: float = 0.0
+    elbow_cost: float = 0.0
+    elbow_risk: float = 0.0

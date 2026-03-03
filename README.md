@@ -17,9 +17,79 @@
 <img src="https://img.shields.io/badge/ML%20Models-LSTM%20%2B%20XGBoost%20%2B%20GA%20%2B%20DQN-green?style=for-the-badge" />
 <img src="https://img.shields.io/badge/API-REST%20%2B%20WebSocket-purple?style=for-the-badge" />
 <img src="https://img.shields.io/badge/AWS-S3%20%7C%20Redshift%20%7C%20Athena%20%7C%20QuickSight-FF9900?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Tests-47%20Passed-brightgreen?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Tests-120%2B%20Passed-brightgreen?style=for-the-badge" />
 
 </div>
+
+---
+
+## v2.0 Highlights
+
+| Feature | v1.0 | v2.0 |
+|---------|------|------|
+| **Orchestration** | Sequential 8-step | LangGraph state machine + classic mode |
+| **Optimization** | GA + DQN | + OR-Tools CP-SAT MILP (supplier allocation) |
+| **Causal Inference** | — | DoWhy 4-step (Model→Identify→Estimate→Refute) |
+| **Forecasting** | LSTM + XGBoost | + Chronos-2 zero-shot (optional) |
+| **Observability** | structlog | + AgentTracer, TokenBudget, ResponseCache |
+| **Resilience** | Basic error handling | CircuitBreaker, 4-level GracefulDegradation |
+| **State Management** | Mutable global dict | Pydantic SupplyChainState with per-agent isolation |
+| **Tests** | 47 | 120+ (unit, integration, property-based, chaos) |
+| **Deployment** | Manual | Docker + docker-compose |
+
+### v2.0 Architecture
+
+```
+                    ┌─────────────────────────────────────┐
+                    │       LangGraph StateGraph           │
+                    │  ┌─────────────────────────────┐    │
+Market Intel ──→ Anomaly ──→ Forecast ──→ Inventory   │    │
+                    │  ──→ Risk ──→ Supplier ──┬──→   │    │
+                    │                    [HITL?]│      │    │
+                    │                    ├──────┘      │    │
+                    │  Logistics ──→ Planner ──→ Coord │    │
+                    │  ──→ Reporter ──→ KPI Update     │    │
+                    │  └─────────────────────────────┘    │
+                    └──────────┬──────────────────────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+        ┌─────────┐    ┌─────────────┐   ┌──────────┐
+        │ CP-SAT  │    │   DoWhy     │   │ Chronos  │
+        │ MILP    │    │  Causal     │   │   -2     │
+        │Optimizer│    │ Inference   │   │Forecaster│
+        └─────────┘    └─────────────┘   └──────────┘
+```
+
+### MILP Formulation (CP-SAT)
+
+```
+min  Σ(cᵢ · xᵢ) + λ · Σ(rᵢ · xᵢ)
+
+s.t. Σ xᵢ ≥ D                    (demand satisfaction)
+     xᵢ ≥ MOQᵢ · yᵢ              (minimum order qty)
+     xᵢ ≤ Capᵢ · yᵢ              (capacity limit)
+     Σ yᵢ ≤ K                     (max suppliers)
+     LTᵢ · yᵢ ≤ LT_max           (lead-time)
+```
+
+### DoWhy Causal DAG
+
+```
+initial_quality_score ──┐
+disruption_severity ────┤
+alternative_count ──────┼──→ switched_supplier ──→ total_cost_delta
+product_criticality ────┘
+```
+
+### Resilience Levels
+
+| Level | Behavior |
+|-------|----------|
+| `full` | All systems operational |
+| `llm_partial` | LLM calls limited, shorter prompts |
+| `rule_based` | No LLM, heuristic rules only |
+| `human` | Escalate to human operator |
 
 ---
 
@@ -566,7 +636,7 @@ Step 8: REPORT GENERATION
 
 ## Research Foundations
 
-This architecture integrates insights from cutting-edge supply chain AI research:
+This architecture integrates insights from recent supply chain AI research:
 
 | Research | Source | Applied Concept |
 |----------|--------|----------------|
@@ -650,27 +720,39 @@ pip install boto3 redshift-connector pyarrow
 ## Testing
 
 ```bash
-# Run all AWS backend tests (47 tests, no real AWS credentials needed)
-python -m pytest tests/test_aws/ -v
+# Run all tests (120+)
+pytest tests/ -v
 
-# Run specific test modules
-python -m pytest tests/test_aws/test_backend.py -v       # NullBackend, factory, AWSBackend
-python -m pytest tests/test_aws/test_s3_client.py -v     # S3 upload/download operations
-python -m pytest tests/test_aws/test_redshift_client.py -v  # Redshift DDL, COPY, queries
-python -m pytest tests/test_aws/test_athena_client.py -v # Athena external tables, polling
-python -m pytest tests/test_aws/test_quicksight_client.py -v  # QuickSight datasets, dashboards
+# Run by module
+pytest tests/test_agents/         # Agent tests (21 tests)
+pytest tests/test_models/         # ML model tests (18 tests)
+pytest tests/test_kpi/            # KPI engine tests (8 tests)
+pytest tests/test_optimization/   # CP-SAT optimizer tests (10 tests)
+pytest tests/test_causal/         # Causal inference tests (10 tests)
+pytest tests/test_resilience/     # Circuit breaker tests (12 tests)
+pytest tests/test_observability/  # Observability tests (14 tests)
+pytest tests/test_integration/    # LangGraph integration tests (8 tests)
+pytest tests/test_chaos/          # Fault injection tests (5 tests)
+pytest tests/test_property_based.py  # Hypothesis property tests (5 tests)
+pytest tests/test_aws/ -v         # AWS backend tests (47 tests)
 ```
 
 | Test Module | Tests | Coverage |
 |-------------|-------|----------|
-| `test_backend.py` | 17 | NullBackend no-ops, `get_backend()` factory, AWSBackend persist/query |
-| `test_s3_client.py` | 7 | Upload Parquet/JSONL/JSON, list objects, download, key formatting |
-| `test_redshift_client.py` | 8 | DDL creation, COPY command, SQL queries, KPI insert, connection |
-| `test_athena_client.py` | 9 | Database/table creation, query polling, result parsing, timeout |
-| `test_quicksight_client.py` | 6 | Data source, dataset, dashboard creation, list dashboards |
-| **Total** | **47** | All AWS clients fully mocked with `unittest.mock` |
+| `test_agents/` | 21 | BaseAgent, DemandForecaster, SupplierManager, Coordinator |
+| `test_models/` | 18 | LSTM, XGBoost, Ensemble, AnomalyDetector, GA, DQN, Hybrid |
+| `test_kpi/` | 8 | KPI calculations, thresholds, violations |
+| `test_optimization/` | 10 | CP-SAT allocation, constraints, sensitivity analysis |
+| `test_causal/` | 10 | Synthetic data, ATE, refutation, IPW fallback |
+| `test_resilience/` | 12 | Circuit breaker states, transitions, degradation |
+| `test_observability/` | 14 | AgentTracer, TokenBudget, ResponseCache |
+| `test_integration/` | 8 | LangGraph graph build, cycle, HITL, factory |
+| `test_chaos/` | 5 | Exception survival, fault injection |
+| `test_property_based.py` | 5 | Hypothesis: KPI ranges, optimizer constraints |
+| `test_aws/` | 47 | All AWS clients fully mocked |
+| **Total** | **120+** | Full coverage across all v2.0 modules |
 
-All tests use mocked `boto3` and `redshift_connector` — no real AWS account or credentials are required.
+All tests use mocked dependencies — no real AWS, LLM API keys, or GPU required.
 
 ---
 
@@ -713,12 +795,20 @@ All tests use mocked `boto3` and `redshift_connector` — no real AWS account or
 | **Data Models** | Pydantic 2.0+, Pydantic Settings |
 | **Data Processing** | pandas, numpy |
 | **ML/Statistics** | scikit-learn (Isolation Forest), custom LSTM/XGB/GA/DQN |
+| **Optimization** | OR-Tools CP-SAT (MILP), Genetic Algorithm, DQN |
+| **Causal Inference** | DoWhy (IPW, refutation), networkx (DAG) |
+| **Forecasting** | Custom LSTM/XGB + Chronos-2 (optional zero-shot) |
+| **Orchestration** | LangGraph StateGraph (optional) + classic sequential |
+| **Observability** | AgentTracer, TokenBudget, ResponseCache |
+| **Resilience** | CircuitBreaker, 4-level GracefulDegradation |
 | **API Server** | FastAPI, uvicorn |
 | **Async Runtime** | asyncio (native Python) |
 | **Terminal UI** | rich (progress bars, tables, trees) |
 | **Logging** | structlog (structured, ISO 8601) |
 | **LLM Clients** | openai (optional), httpx (Ollama, optional) |
 | **AWS (optional)** | boto3, redshift-connector, pyarrow (S3, Redshift, Athena, QuickSight) |
+| **Testing** | pytest, hypothesis, pytest-asyncio, pytest-cov |
+| **Deployment** | Docker, docker-compose |
 | **Configuration** | Environment variables (CC_ prefix), .env file |
 
 ### Dependencies

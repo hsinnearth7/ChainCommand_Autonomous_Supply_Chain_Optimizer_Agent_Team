@@ -22,6 +22,7 @@ class BaseAgent(ABC):
     name: str = "base_agent"
     role: str = "Base agent"
     layer: str = "operational"  # strategic | tactical | operational | orchestration
+    state_key: str = ""  # v2.0: key into SupplyChainState for state isolation
 
     def __init__(self, llm: BaseLLM, tools: List[BaseTool] | None = None) -> None:
         self.llm = llm

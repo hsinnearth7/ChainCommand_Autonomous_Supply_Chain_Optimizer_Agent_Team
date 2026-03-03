@@ -18,6 +18,7 @@ def mock_boto3():
 @pytest.fixture
 def qs_client(mock_boto3):
     import importlib
+
     import chaincommand.aws.quicksight_client as mod
 
     importlib.reload(mod)

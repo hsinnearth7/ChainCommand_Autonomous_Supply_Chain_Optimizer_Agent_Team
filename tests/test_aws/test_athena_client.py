@@ -18,6 +18,7 @@ def mock_boto3():
 @pytest.fixture
 def athena_client(mock_boto3):
     import importlib
+
     import chaincommand.aws.athena_client as mod
 
     importlib.reload(mod)

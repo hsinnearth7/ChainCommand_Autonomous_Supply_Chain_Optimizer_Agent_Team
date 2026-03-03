@@ -22,6 +22,7 @@ def mock_boto3():
 def s3_client(mock_boto3):
     # Force re-import so the lazy `import boto3` inside __init__ picks up our mock
     import importlib
+
     import chaincommand.aws.s3_client as mod
 
     importlib.reload(mod)

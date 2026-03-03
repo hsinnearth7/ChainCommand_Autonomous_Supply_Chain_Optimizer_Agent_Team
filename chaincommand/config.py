@@ -5,7 +5,6 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
@@ -93,6 +92,28 @@ class Settings(BaseSettings):
     dqn_epsilon_start: float = 1.0
     dqn_epsilon_end: float = 0.01
     dqn_epsilon_decay: float = 0.995
+
+    # ── v2.0: Orchestrator mode ────────────────────────
+    orchestrator_mode: str = "classic"  # "classic" or "langgraph"
+
+    # ── v2.0: OR-Tools CP-SAT ─────────────────────────
+    ortools_time_limit_ms: int = 10_000
+    ortools_risk_lambda: float = 0.3
+    ortools_max_suppliers: int = 5
+
+    # ── v2.0: Causal analysis ─────────────────────────
+    enable_causal_analysis: bool = False
+
+    # ── v2.0: Token budget / cost control ─────────────
+    token_budget_per_cycle: int = 50_000
+    token_budget_per_agent: int = 8_000
+
+    # ── v2.0: Circuit breaker ─────────────────────────
+    circuit_breaker_failure_threshold: int = 3
+    circuit_breaker_recovery_timeout: float = 60.0
+
+    # ── v2.0: Chronos ─────────────────────────────────
+    enable_chronos: bool = False
 
 
 settings = Settings()

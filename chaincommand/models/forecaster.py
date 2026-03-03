@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -145,6 +145,10 @@ class EnsembleForecaster:
         self._weights: Dict[str, Dict[str, float]] = {}  # product_id -> {lstm, xgb}
         self._accuracy_cache: Dict[str, dict] = {}
 
+    @property
+    def is_trained(self) -> bool:
+        return self._lstm.is_trained or self._xgb.is_trained
+
     def train(self, history: pd.DataFrame, product_id: str) -> None:
         self._lstm.train(history, product_id)
         self._xgb.train(history, product_id)
@@ -232,3 +236,20 @@ class EnsembleForecaster:
             if a > 0:
                 errors.append(abs(a - p) / a * 100)
         return float(np.mean(errors)) if errors else 100.0
+
+
+# ── v2.0: ForecastModel Protocol ─────────────────────────
+
+from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class ForecastModel(Protocol):
+    """Protocol that all forecaster implementations must satisfy."""
+
+    @property
+    def is_trained(self) -> bool: ...
+
+    def train(self, history: pd.DataFrame, product_id: str) -> None: ...
+
+    def predict(self, product_id: str, horizon: int = 30) -> List[ForecastResult]: ...

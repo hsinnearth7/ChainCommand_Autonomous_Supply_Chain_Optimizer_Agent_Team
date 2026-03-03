@@ -1,7 +1,7 @@
 """Supply chain agent team — 10 agents across 4 layers."""
 
-from .base_agent import BaseAgent
 from .anomaly_detector_agent import AnomalyDetectorAgent
+from .base_agent import BaseAgent
 from .coordinator import CoordinatorAgent
 from .demand_forecaster import DemandForecasterAgent
 from .inventory_optimizer import InventoryOptimizerAgent

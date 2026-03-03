@@ -1,0 +1,14 @@
+services:
+  chaincommand:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CC_LLM_MODE=mock
+      - CC_ORCHESTRATOR_MODE=classic
+      - CC_LOG_LEVEL=INFO
+      - CC_ENABLE_CAUSAL_ANALYSIS=false
+      - CC_ENABLE_CHRONOS=false
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

@@ -67,7 +67,7 @@ async def trigger_agent(agent_name: str):
 @router.get("/simulation/status")
 async def simulation_status():
     """Get current simulation status."""
-    from ...orchestrator import get_orchestrator, _runtime
+    from ...orchestrator import _runtime, get_orchestrator
 
     orchestrator = get_orchestrator()
     return {
