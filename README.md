@@ -741,7 +741,7 @@ ChainCommand includes production-grade deployment infrastructure spanning three 
 | Component | Technology | Details |
 |-----------|-----------|---------|
 | **Model Registry** | MLflow | Version management, stage transitions (staging → production → archived) |
-| **Metrics** | Prometheus | 12 custom metrics (`chaincommand_*`): request rate, latency, KPIs, token budget, circuit breaker |
+| **Metrics** | Prometheus | 13 custom metrics (`chaincommand_*`): request rate, latency, KPIs, token budget, circuit breaker, app info |
 | **Dashboards** | Grafana | 9-panel dashboard: request rate, latency P50/P95/P99, agents, errors, KPIs, simulation, tokens |
 | **Canary Deployment** | Istio + Flagger | 10% step weight, max 50%, success rate > 99%, P99 < 500ms |
 | **Pipeline Orchestration** | Apache Airflow | Training DAG (weekly, 8 tasks) + Monitoring DAG (6-hourly drift detection) |
@@ -765,7 +765,7 @@ docker compose up -d
 
 # Monitoring (Prometheus + Grafana)
 docker compose -f monitoring/docker-compose.monitoring.yaml up -d
-# → Grafana: http://localhost:3000 (admin/admin)
+# → Grafana: http://localhost:3000 (admin/changeme)
 
 # MLflow Model Registry
 docker compose -f mlflow/docker-compose.mlflow.yaml up -d
