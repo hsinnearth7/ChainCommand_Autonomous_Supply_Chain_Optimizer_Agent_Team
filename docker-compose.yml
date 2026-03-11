@@ -9,7 +9,7 @@ services:
       - CC_LOG_LEVEL=INFO
       - CC_ENABLE_CAUSAL_ANALYSIS=false
       - CC_ENABLE_CHRONOS=false
-      - DATABASE_URL=postgresql://chaincommand:changeme@postgres:5432/chaincommand
+      - DATABASE_URL=postgresql://chaincommand:${POSTGRES_PASSWORD:-changeme}@postgres:5432/chaincommand
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./data:/app/data
@@ -25,7 +25,7 @@ services:
     environment:
       POSTGRES_DB: chaincommand
       POSTGRES_USER: chaincommand
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     ports:
       - "5432:5432"
     volumes:
