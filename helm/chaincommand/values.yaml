@@ -58,8 +58,8 @@ config:
   rateLimitPerMinute: "60"
 
 secrets:
-  apiKey: change-me-api-key
-  openaiApiKey: change-me-openai-key
+  apiKey: ""
+  openaiApiKey: ""
 
 probes:
   liveness:
