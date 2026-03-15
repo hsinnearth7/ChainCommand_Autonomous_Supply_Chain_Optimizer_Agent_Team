@@ -4,8 +4,8 @@ from __future__ import annotations
 import random
 from typing import Dict, List, Optional
 
-from .models import BOMItem, BOMTree
 from ..utils.logging_config import get_logger
+from .models import BOMItem, BOMTree
 
 log = get_logger(__name__)
 
@@ -157,7 +157,7 @@ class BOMManager:
         max_depth = 0
         max_lead = 0
 
-        for assembly_id, tree in self._trees.items():
+        for _assembly_id, tree in self._trees.items():
             roots = tree.root_items
             for root in roots:
                 total_items += len(tree.items)

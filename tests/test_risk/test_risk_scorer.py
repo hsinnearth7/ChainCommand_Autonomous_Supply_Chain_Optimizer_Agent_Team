@@ -1,7 +1,7 @@
 """Tests for supplier risk scoring module."""
 import pytest
 
-from chaincommand.risk.scorer import SupplierRiskScorer, SupplierMetrics, RiskScore
+from chaincommand.risk.scorer import SupplierMetrics, SupplierRiskScorer
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ class TestSupplierRiskScorer:
 
     def test_ml_adjusts_score(self, scorer, good_supplier):
         # Score without ML
-        score_no_ml = scorer.score_supplier(good_supplier)
+        scorer.score_supplier(good_supplier)
 
         # Train ML and score again
         data = scorer.generate_synthetic_history(n_suppliers=100)

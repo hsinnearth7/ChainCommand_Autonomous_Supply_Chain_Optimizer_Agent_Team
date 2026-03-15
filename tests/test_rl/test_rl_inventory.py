@@ -1,10 +1,9 @@
 """Tests for RL inventory policy module."""
 import pytest
-import numpy as np
 
-from chaincommand.rl.environment import InventoryEnv, InventoryEnvConfig, HAS_GYM
-from chaincommand.rl.trainer import RLInventoryTrainer, SsBaseline, TrainingResult
+from chaincommand.rl.environment import InventoryEnv, InventoryEnvConfig
 from chaincommand.rl.policy import RLInventoryPolicy
+from chaincommand.rl.trainer import RLInventoryTrainer, SsBaseline, TrainingResult
 
 
 @pytest.fixture

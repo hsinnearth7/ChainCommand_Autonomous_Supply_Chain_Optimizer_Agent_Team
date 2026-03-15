@@ -2,7 +2,7 @@
 import pytest
 
 from chaincommand.bom.models import BOMItem, BOMTree
-from chaincommand.ctb.analyzer import CTBAnalyzer, CTBReport
+from chaincommand.ctb.analyzer import CTBAnalyzer
 
 
 @pytest.fixture

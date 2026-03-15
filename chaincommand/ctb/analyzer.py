@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from ..bom.models import BOMItem, BOMTree
+from ..bom.models import BOMTree
 from ..utils.logging_config import get_logger
 
 log = get_logger(__name__)

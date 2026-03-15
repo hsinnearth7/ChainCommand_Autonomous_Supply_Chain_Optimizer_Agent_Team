@@ -1,8 +1,8 @@
 """Tests for BOM management module."""
 import pytest
 
-from chaincommand.bom.models import BOMItem, BOMTree
 from chaincommand.bom.manager import BOMManager
+from chaincommand.bom.models import BOMItem, BOMTree
 
 
 @pytest.fixture

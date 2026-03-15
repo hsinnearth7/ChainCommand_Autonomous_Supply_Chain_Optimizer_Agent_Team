@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import numpy as np
 
-from .environment import InventoryEnv, InventoryEnvConfig, HAS_GYM
 from ..utils.logging_config import get_logger
+from .environment import HAS_GYM, InventoryEnv, InventoryEnvConfig
 
 log = get_logger(__name__)
 
@@ -62,7 +62,7 @@ class SsBaseline:
             total_reward = 0.0
             stockout_days = 0
 
-            for day in range(env_config.episode_length):
+            for _day in range(env_config.episode_length):
                 # (s,S) decision
                 if stock <= self.s:
                     order_qty = max(0, self.S - stock)
@@ -214,7 +214,7 @@ class RLInventoryTrainer:
             stock = self.config.demand_mean * self.config.lead_time_days
             total_reward = 0.0
 
-            for day in range(self.config.episode_length):
+            for _day in range(self.config.episode_length):
                 # Discretize state
                 state = np.digitize(stock, stock_bins[1:])
                 state = min(state, 3)
@@ -236,7 +236,9 @@ class RLInventoryTrainer:
 
                 holding_cost = stock * self.config.holding_cost_per_unit / 365
                 stockout_cost = stockout * self.config.stockout_cost_per_unit
-                ordering_cost = (self.config.ordering_cost_fixed + order_qty * self.config.ordering_cost_per_unit) if order_qty > 0 else 0
+                ordering_cost = (
+                    self.config.ordering_cost_fixed + order_qty * self.config.ordering_cost_per_unit
+                ) if order_qty > 0 else 0
 
                 reward = -(holding_cost + stockout_cost + ordering_cost)
 

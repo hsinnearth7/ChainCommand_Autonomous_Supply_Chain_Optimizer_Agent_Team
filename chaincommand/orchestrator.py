@@ -103,8 +103,8 @@ class ChainCommandOrchestrator:
 
         # Phase 1: Train ML models
         self._on_progress("ml", "running", {})
-        from .models.forecaster import EnsembleForecaster
         from .models.anomaly_detector import AnomalyDetector
+        from .models.forecaster import EnsembleForecaster
         from .models.optimizer import HybridOptimizer
 
         _runtime.forecaster = EnsembleForecaster()
@@ -175,7 +175,6 @@ class ChainCommandOrchestrator:
         # Phase 5: Risk Scoring
         self._on_progress("risk", "running", {})
         from .risk import SupplierRiskScorer
-        from .risk.scorer import SupplierMetrics
 
         _runtime.risk_scorer = SupplierRiskScorer()
         # Train ML risk model on synthetic history

@@ -6,9 +6,9 @@ from typing import Optional
 
 import numpy as np
 
+from ..utils.logging_config import get_logger
 from .environment import InventoryEnvConfig
 from .trainer import RLInventoryTrainer
-from ..utils.logging_config import get_logger
 
 log = get_logger(__name__)
 

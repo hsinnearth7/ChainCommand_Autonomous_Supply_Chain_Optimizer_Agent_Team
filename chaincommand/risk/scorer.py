@@ -147,11 +147,9 @@ class SupplierRiskScorer:
             Training accuracy score
         """
         if not HAS_SKLEARN or len(historical_data) < 10:
-            log.info("ml_risk_skipped", reason="insufficient_data" if len(historical_data) < 10 else "sklearn_unavailable")
+            reason = "insufficient_data" if len(historical_data) < 10 else "sklearn_unavailable"
+            log.info("ml_risk_skipped", reason=reason)
             return 0.0
-
-        feature_cols = ["on_time_rate", "defect_rate", "lead_time_cv", "financial_score",
-                       "capacity_utilization", "recent_incidents", "years_relationship"]
 
         X = []
         y = []
