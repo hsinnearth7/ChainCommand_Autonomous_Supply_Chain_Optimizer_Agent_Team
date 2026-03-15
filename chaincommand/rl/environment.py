@@ -160,13 +160,93 @@ if HAS_GYM:
 else:
     # Fallback stub when gymnasium is not installed
     class InventoryEnv:  # type: ignore[no-redef]
-        """Stub InventoryEnv when gymnasium is not installed."""
+        """Stub InventoryEnv when gymnasium is not installed.
+
+        Mirrors the real InventoryEnv interface so tests work without gymnasium.
+        """
         def __init__(self, config=None, **kwargs):
             self.config = config or InventoryEnvConfig()
+            self._order_quantities = [
+                0,
+                int(self.config.demand_mean * 3),
+                int(self.config.demand_mean * 7),
+                int(self.config.demand_mean * 14),
+                int(self.config.demand_mean * 28),
+            ]
+            self._stock = 0.0
+            self._day = 0
+            self._pending_orders: list = []
+            self._days_since_order = 0
+            self._recent_demands: list = []
+            self._rng = np.random.default_rng()
             log.warning("gymnasium_not_installed", fallback="stub_env")
 
         def reset(self, **kwargs):
-            return np.zeros(5, dtype=np.float32), {}
+            seed = kwargs.get("seed")
+            self._rng = np.random.default_rng(seed)
+            self._stock = self.config.demand_mean * self.config.lead_time_days
+            self._day = 0
+            self._pending_orders = []
+            self._days_since_order = 30
+            self._recent_demands = []
+            return self._get_obs(), {}
 
         def step(self, action):
-            return np.zeros(5, dtype=np.float32), 0.0, True, False, {}
+            # Process incoming orders
+            arrived = [(d, q) for d, q in self._pending_orders if d <= self._day]
+            for _, qty in arrived:
+                self._stock += qty
+            self._pending_orders = [(d, q) for d, q in self._pending_orders if d > self._day]
+
+            # Place order
+            order_qty = self._order_quantities[action]
+            ordering_cost = 0.0
+            if order_qty > 0:
+                arrival = self._day + self.config.lead_time_days
+                self._pending_orders.append((arrival, float(order_qty)))
+                ordering_cost = self.config.ordering_cost_fixed + order_qty * self.config.ordering_cost_per_unit
+                self._days_since_order = 0
+            else:
+                self._days_since_order += 1
+
+            # Simulate demand
+            demand = max(0, self._rng.normal(self.config.demand_mean, self.config.demand_std))
+            self._recent_demands.append(demand)
+            if len(self._recent_demands) > 30:
+                self._recent_demands.pop(0)
+
+            # Consume stock
+            stockout = max(0, demand - self._stock)
+            self._stock = max(0, self._stock - demand)
+            self._stock = min(self._stock, self.config.max_stock)
+
+            # Calculate reward
+            holding_cost = self._stock * self.config.holding_cost_per_unit / 365
+            stockout_cost = stockout * self.config.stockout_cost_per_unit
+            reward = -(holding_cost + stockout_cost + ordering_cost)
+
+            self._day += 1
+            terminated = self._day >= self.config.episode_length
+            truncated = False
+
+            info = {
+                "stock": self._stock,
+                "demand": demand,
+                "stockout": stockout,
+                "holding_cost": holding_cost,
+                "stockout_cost": stockout_cost,
+                "ordering_cost": ordering_cost,
+                "order_qty": order_qty,
+            }
+
+            return self._get_obs(), reward, terminated, truncated, info
+
+        def _get_obs(self) -> np.ndarray:
+            stock_ratio = min(1.0, self._stock / self.config.max_stock) if self.config.max_stock > 0 else 0.0
+            avg_demand = np.mean(self._recent_demands) if self._recent_demands else self.config.demand_mean
+            demand_ratio = min(1.0, avg_demand / self.config.max_demand) if self.config.max_demand > 0 else 0.0
+            dow = (self._day % 7) / 7.0
+            pending_qty = sum(q for _, q in self._pending_orders)
+            pending_ratio = min(1.0, pending_qty / self.config.max_stock) if self.config.max_stock > 0 else 0.0
+            days_ratio = min(1.0, self._days_since_order / 30.0)
+            return np.array([stock_ratio, demand_ratio, dow, pending_ratio, days_ratio], dtype=np.float32)
